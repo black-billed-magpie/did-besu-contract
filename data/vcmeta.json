@@ -1,0 +1,18 @@
+{
+    "id": "vc:example:12345",
+    "issuer": {
+        "did": "did:example:issuer123",
+        "certVcReference": "cert:example:67890"
+    },
+    "subject": "did:example:subject456",
+    "credentialSchema": {
+        "url": "schema:example:78901",
+        "credentialSchemaType": "JsonSchemaValidator2018"
+    },
+    "status": "ACTIVE",
+    "issuanceDate": "2025-04-02T10:00:00Z",
+    "validFrom": "2025-04-02T10:00:00Z",
+    "validUntil": "2026-04-02T10:00:00Z",
+    "formatVersion": "1.0",
+    "language": "en"
+}

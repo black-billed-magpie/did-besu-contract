@@ -7,6 +7,7 @@ library ZKPLibrary {
         string name;
         string version;
         string[] attrNames;
+        AttributeType[] attrTypes;
         string tag;
     }
 
@@ -55,5 +56,27 @@ library ZKPLibrary {
         string _type;
         string value;
         string tag;
+    }
+
+    struct AttributeType {
+        AttributeNamespace namespace;
+        AttributeItem[] itmes;
+    }
+
+    struct AttributeNamespace {
+        string id;
+        string ref;
+    }
+
+    struct AttributeItem {
+        string label;
+        string caption;
+        string _type;
+        Internationalization i18n;
+    }
+
+    struct Internationalization {
+        string ko;
+        string en;
     }
 }

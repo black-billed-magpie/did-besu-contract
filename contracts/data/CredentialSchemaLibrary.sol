@@ -3,7 +3,7 @@ pragma solidity ^0.8.27;
 
 library CredentialSchemaLibrary {
     struct CredentialSchema {
-        string url;
+        string id;
         string credentialSchemaType;
     }
 
@@ -14,7 +14,7 @@ library CredentialSchemaLibrary {
             string(
                 abi.encodePacked(
                     '{"url":"',
-                    schema.url,
+                    schema.id,
                     '","credentialSchemaType":"',
                     schema.credentialSchemaType,
                     '"}'
@@ -27,7 +27,7 @@ library CredentialSchemaLibrary {
         CredentialSchema memory b
     ) internal pure returns (bool) {
         return
-            keccak256(abi.encodePacked(a.url, a.credentialSchemaType)) ==
-            keccak256(abi.encodePacked(b.url, b.credentialSchemaType));
+            keccak256(abi.encodePacked(a.id, a.credentialSchemaType)) ==
+            keccak256(abi.encodePacked(b.id, b.credentialSchemaType));
     }
 }

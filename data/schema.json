@@ -1,0 +1,5 @@
+{
+    "id": "did:kr:mobileid:pZtebQzg7rKMYt6hoEFhLp6xVLx:2:mdlschema:1.0",
+    "desc": "",
+    "value": "{\"id\":\"did:kr:mobileid:pZtebQzg7rKMYt6hoEFhLp6xVLx:2:mdlschema:1.0\",\"name\":\"mdlschema\",\"version\":\"1.0\",\"attr_names\":[\"zkpsex\",\"zkpaddr\",\"zkpasort\",\"zkpbirth\"],\"tag\":\"Tag1\",\"seqNo\":0}"
+}

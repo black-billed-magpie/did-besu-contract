@@ -1,0 +1,35 @@
+@startuml did-besu-contract DID Registration Flow
+title DID Registration Flow
+
+actor IssuerOrOwner
+participant OpenDID
+participant DocumentStorage
+participant OpenZeppelin
+
+IssuerOrOwner -> OpenDID: Prepare and send DID Document
+OpenDID -> OpenDID: Check if initialized
+alt Initialized
+    OpenDID -> OpenDID: Extract public key from DID Document
+    OpenDID -> OpenDID: Derive address from public key
+    OpenDID -> OpenDID: Determine if address is owner or issuer
+    alt Address is Owner
+        OpenDID -> OpenDID: Validate DID Document
+        OpenDID -> DocumentStorage: Call registerDocument
+        DocumentStorage -> DocumentStorage: Store DID Document
+        DocumentStorage -> OpenDID: Acknowledge registration
+        OpenDID -> IssuerOrOwner: Emit DIDCreated event
+    else Address is not Issuer and role type is issuer
+        OpenDID -> OpenDID: Validate DID Document
+        OpenDID -> DocumentStorage: Call registerDocument
+        DocumentStorage -> DocumentStorage: Store DID Document
+        DocumentStorage -> OpenDID: Acknowledge registration
+        OpenDID -> OpenZeppelin: Store address in OpenZeppelin by issuer
+        OpenZeppelin -> OpenZeppelin: Store issuer address
+        OpenZeppelin -> OpenDID: Acknowledge registration
+        OpenDID -> IssuerOrOwner: Emit DIDCreated event
+    end
+else Not Initialized
+    OpenDID -> IssuerOrOwner: Reject the request
+end
+
+@enduml

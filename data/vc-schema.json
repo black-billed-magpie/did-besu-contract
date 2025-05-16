@@ -1,0 +1,58 @@
+{
+    "id": "http://10.48.200.131:8091/issuer/api/v1/vc/vcschema?name=mdl",
+    "schema": "https://opendid.org/schema/vc.osd",
+    "title": "OpenDID Mobile Driver License",
+    "description": "VC-formatted OpenDID Mobile License Driver.",
+    "metadata": {
+        "formatVersion": "1.0",
+        "language": "ko"
+    },
+    "credentialSubject": {
+        "claims": [
+            {
+                "items": [
+                    {
+                        "caption": "Name",
+                        "format": "plain",
+                        "hideValue": false,
+                        "id": "user_name",
+                        "_type": "text"
+                    },
+                    {
+                        "caption": "Birth date",
+                        "format": "plain",
+                        "hideValue": false,
+                        "id": "birth_date",
+                        "_type": "text"
+                    },
+                    {
+                        "caption": "Issue Date",
+                        "format": "plain",
+                        "hideValue": false,
+                        "id": "issue_date",
+                        "_type": "text"
+                    },
+                    {
+                        "caption": "Address",
+                        "format": "plain",
+                        "hideValue": false,
+                        "id": "address",
+                        "_type": "text"
+                    },
+                    {
+                        "caption": "Dummy1",
+                        "format": "plain",
+                        "hideValue": false,
+                        "id": "dummy1",
+                        "_type": "text"
+                    }
+                ],
+                "namespace": {
+                    "id": "org.opendid.v1.national_id",
+                    "name": "OpenDID National ID",
+                    "ref": "https://opendid.org/schema/v1/claim"
+                }
+            }
+        ]
+    }
+}

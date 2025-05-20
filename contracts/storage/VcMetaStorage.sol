@@ -83,6 +83,8 @@ contract VcMetaStorage is Initializable {
         Storage storage store = _getStorage();
         VcMetaLibrary.VcMeta storage vcMeta = store._vcMeta[_vcId];
         VcMetaLibrary.updateVcStatus(vcMeta, _status);
+
+        store._vcMeta[_vcId] = vcMeta;
     }
 
     function registerVcSchema(

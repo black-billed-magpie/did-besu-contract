@@ -135,11 +135,11 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     ) public view returns (ResponseLibrary.Response memory) {
         // Try to retrieve the DID Document from the storage contract
         try documentStorage.getDocument(_did) returns (
-            DocumentLibrary.Document memory document
+            DocumentLibrary.DocumentAndStatus memory doccumentAndStatus
         ) {
-            // Convert the retrieved document to a JSON string
-            string memory documentJson = DocumentLibrary.documentToJson(
-                document
+            // Convert the document to JSON format
+            string memory documentJson = DocumentLibrary.toJson(
+                doccumentAndStatus
             );
 
             // Return a successful response with the document data

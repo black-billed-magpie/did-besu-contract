@@ -35,8 +35,13 @@ describe("VcMetaStorage", function () {
             const { vcMetaStorage, owner } = await loadFixture(deployVcMetaStorage);
             const vcmeta = getLocalJson("./data/vcmeta.json");
 
+
+            await expect(vcMetaStorage.registerVcMeta(vcmeta))
+                .to.emit(vcMetaStorage, "VcMetaRegistered");
+
             await vcMetaStorage.registerVcMeta(vcmeta);
             const storedVcMeta = await vcMetaStorage.getVcMeta(vcmeta.id);
+
             expect(storedVcMeta.id).to.equal(vcmeta.id);
         });
 

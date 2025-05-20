@@ -10,7 +10,6 @@ import "./data/ZKPLibrary.sol";
 import "./data/DocumentLibrary.sol";
 import "./data/VcMetaLibrary.sol";
 import "./data/VcSchemaMetaLibrary.sol";
-import "./data/ResponseLibrary.sol";
 import "./data/RoleLibrary.sol";
 
 import "./storage/DocumentStorage.sol";
@@ -35,7 +34,6 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     using VcSchemaMetaLibrary for VcSchemaMetaLibrary.VcSchema;
     using ZKPLibrary for ZKPLibrary.CredentialSchema;
     using ZKPLibrary for ZKPLibrary.CredentialDefinition;
-    using ResponseLibrary for ResponseLibrary.Response;
 
     // Storage contracts
     DocumentStorage private documentStorage;
@@ -132,23 +130,13 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
 
     function getDidDoc(
         string calldata _did
-    ) public view returns (ResponseLibrary.Response memory) {
+    ) public view returns (DocumentLibrary.DocumentAndStatus memory) {
         // Try to retrieve the DID Document from the storage contract
         try documentStorage.getDocument(_did) returns (
-            DocumentLibrary.DocumentAndStatus memory doccumentAndStatus
+            DocumentLibrary.DocumentAndStatus memory documentAndStatus
         ) {
-            // Convert the document to JSON format
-            string memory documentJson = DocumentLibrary.toJson(
-                doccumentAndStatus
-            );
-
             // Return a successful response with the document data
-            return
-                ResponseLibrary.Response(
-                    200,
-                    "Document retrieved successfully",
-                    documentJson
-                );
+            return documentAndStatus;
             // Catch and handle specific errors thrown by the storage contract
         } catch Error(string memory reason) {
             // Revert the transaction with the specific error reason

@@ -230,4 +230,24 @@ library DocumentLibrary {
             _documentStatus.terminatedTime = _terminatedTime;
         }
     }
+
+    struct DocumentAndStatus {
+        Document diddoc;
+        DIDDOC_STATUS status;
+    }
+
+    function toJson(
+        DocumentAndStatus memory doc
+    ) internal pure returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+                    '{"diddoc":',
+                    documentToJson(doc.diddoc),
+                    ',"status":"',
+                    _statusToString(doc.status),
+                    '"}'
+                )
+            );
+    }
 }

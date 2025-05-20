@@ -60,7 +60,7 @@ library ZKPLibrary {
 
     struct AttributeType {
         AttributeNamespace namespace;
-        AttributeItem[] itmes;
+        AttributeItem[] items;
     }
 
     struct AttributeNamespace {

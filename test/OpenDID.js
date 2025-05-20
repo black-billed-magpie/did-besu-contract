@@ -39,12 +39,14 @@ describe("OpenDID Contract", function () {
   it("should register a DID document", async () => {
     const didDoc = getLocalJson("./data/document.json");
 
-    await expect(openDID.registDidDoc(didDoc))
+    await expect(openDID.registDidDoc(didDoc, "Admin"))
       .to.emit(openDID, "DIDCreated")
       .withArgs(didDoc.id, owner.address);
 
-    const storedDidDoc = await openDID.getDidDoc(didDoc.id);
-    expect(storedDidDoc.status).to.equal(200);
+    const storedDocumentAndStatus = await openDID.getDidDoc(didDoc.id);
+
+    expect(storedDocumentAndStatus.diddoc.id).to.equal(didDoc.id);
+    expect(storedDocumentAndStatus.status).to.equal(0);
   });
 
   it("should not search for a non-existent DID document", async () => {
@@ -57,7 +59,7 @@ describe("OpenDID Contract", function () {
     const didDoc = getLocalJson("./data/document.json");
 
     // DID 문서 등록
-    await openDID.registDidDoc(didDoc);
+    await openDID.registDidDoc(didDoc, "Admin");
 
     // 상태 업데이트
     const newStatus = "DEACTIVATED";
@@ -66,14 +68,14 @@ describe("OpenDID Contract", function () {
     await openDID.updateDidDocStatusInService(didDoc.id, newStatus, versionId);
 
     const updatedDidDoc = await openDID.getDidDoc(didDoc.id);
-    expect(updatedDidDoc.status).to.equal(200); // 상태가 비활성화로 변경되었는지 확인
+    expect(updatedDidDoc.diddoc.deactivated).to.equal(true); // 상태가 비활성화로 변경되었는지 확인
   });
 
   it("should update the status of a DID document with revocation", async () => {
     const didDoc = getLocalJson("./data/document.json");
 
     // DID 문서 등록
-    await openDID.registDidDoc(didDoc);
+    await openDID.registDidDoc(didDoc, "Admin");
 
     // 상태 업데이트
     const newStatus = "TERMINATED";

@@ -110,7 +110,7 @@ contract DocumentStorage is Initializable, OwnableUpgradeable {
      */
     function getDocument(
         string calldata _did
-    ) external view returns (DocumentLibrary.Document memory) {
+    ) external view returns (DocumentLibrary.DocumentAndStatus memory) {
         // Check if the document exists
         require(
             bytes(_did).length > 0,
@@ -120,7 +120,13 @@ contract DocumentStorage is Initializable, OwnableUpgradeable {
         // Return the document
         // Check if the document exists
         require(_isExistDocument(_did), "Document is not exist");
-        return _getStorage()._doc[_did];
+        DocumentLibrary.Document memory doc = _getStorage()._doc[_did];
+
+        return
+            DocumentLibrary.DocumentAndStatus(
+                doc,
+                _getStorage()._docStatus[_did].status
+            );
     }
 
     /**

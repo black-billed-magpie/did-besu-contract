@@ -5,6 +5,7 @@ const {
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require("chai");
 const { getLocalJson } = require("./Utils");
+const { update } = require("lodash");
 
 describe("VcMetaStorage", function () {
     // Contracts are deployed using the first signer/account by default
@@ -50,11 +51,12 @@ describe("VcMetaStorage", function () {
             const vcmeta = getLocalJson("./data/vcmeta.json");
 
             await vcMetaStorage.registerVcMeta(vcmeta);
-            const newStatus = "revoked";
+            const newStatus = "REVOKED";
             await vcMetaStorage.updateVcMetaStatus(vcmeta.id, newStatus);
 
             const updatedVcMeta = await vcMetaStorage.getVcMeta(vcmeta.id);
-            expect(updatedVcMeta.status).to.equal(newStatus);
+            expect(vcmeta.status).to.not.equal(updatedVcMeta.status);
+            expect(newStatus).to.equal(updatedVcMeta.status);
         });
     });
 

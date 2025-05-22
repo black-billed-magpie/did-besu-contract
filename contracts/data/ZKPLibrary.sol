@@ -72,11 +72,11 @@ library ZKPLibrary {
         string label;
         string caption;
         string _type;
-        Internationalization i18n;
+        Internationalization[] i18n;
     }
 
     struct Internationalization {
-        string ko;
-        string en;
+        string languageType;
+        string value;
     }
 }

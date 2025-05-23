@@ -93,19 +93,18 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         zkpStorage = ZKPStorage(_zkpStorage);
     }
 
-    function registDidDoc(
-        DocumentLibrary.Document calldata _invokedDidDoc,
+    function registRole(
+        address target,
         string calldata roleType
+    ) public onlyRole(RoleLibrary.ADMIN_ROLE) {
+        require(target != address(0), "Target address cannot be zero");
+        require(bytes(roleType).length > 0, "Role type cannot be empty");
+        _grantRole(keccak256(abi.encodePacked(roleType)), target);
+    }
+
+    function registDidDoc(
+        DocumentLibrary.Document calldata _invokedDidDoc
     ) public returns (string memory) {
-        // Decode the public key from the DID Document
-        bytes memory publicKeyValue = multibaseContract.decodeMultibase(
-            _invokedDidDoc.verificationMethod[0].publicKeyMultibase
-        );
-
-        // Derive the Ethereum address from the public key
-        address registPlayer = _deriveAddressFromPublicKey(publicKeyValue);
-
-        // Attempt to register the document in storage
         try
             documentStorage.registerDocument(_invokedDidDoc, msg.sender)
         returns (bool isSuccess) {
@@ -113,7 +112,6 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
 
             // Emit event and assign role
             emit DIDCreated(_invokedDidDoc.id, msg.sender);
-            _grantRole(keccak256(abi.encodePacked(roleType)), registPlayer);
 
             // Return the document as JSON
             return DocumentLibrary.documentToJson(_invokedDidDoc);
@@ -122,14 +120,6 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         } catch {
             revert("Unknown error occurred during document registration");
         }
-    }
-
-    // Helper function to derive an Ethereum address from a public key
-    function _deriveAddressFromPublicKey(
-        bytes memory publicKey
-    ) private pure returns (address) {
-        bytes32 hashKey = keccak256(publicKey);
-        return address(uint160(uint256(hashKey)));
     }
 
     function getDidDoc(

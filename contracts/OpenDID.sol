@@ -16,7 +16,7 @@ import "./storage/DocumentStorage.sol";
 import "./storage/VcMetaStorage.sol";
 import "./storage/ZKPStorage.sol";
 
-import "./utils/MultiBaseLibrary.sol";
+import "./crypto/MultibaseContract.sol";
 
 contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     // Event declaration
@@ -40,10 +40,13 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     VcMetaStorage private vcMetaStorage;
     ZKPStorage private zkpStorage;
 
+    MultibaseContract private multibaseContract;
+
     function initialize(
         address _documentStorage,
         address _vcMetaStorage,
-        address _zkpStorage
+        address _zkpStorage,
+        address _multibaseContract
     ) public initializer {
         _grantRole(RoleLibrary.ADMIN_ROLE, _msgSender());
         __UUPSUpgradeable_init();
@@ -59,6 +62,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         documentStorage = DocumentStorage(_documentStorage);
         vcMetaStorage = VcMetaStorage(_vcMetaStorage);
         zkpStorage = ZKPStorage(_zkpStorage);
+        multibaseContract = MultibaseContract(_multibaseContract);
 
         emit Setup();
     }
@@ -94,7 +98,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         string calldata roleType
     ) public returns (string memory) {
         // Decode the public key from the DID Document
-        bytes memory publicKeyValue = MultiBaseLibrary.decode(
+        bytes memory publicKeyValue = multibaseContract.decodeMultibase(
             _invokedDidDoc.verificationMethod[0].publicKeyMultibase
         );
 

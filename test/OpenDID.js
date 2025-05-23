@@ -21,13 +21,17 @@ describe("OpenDID Contract", function () {
     const ZKPStorage = await ethers.getContractFactory("ZKPStorage");
     const zkpStorage = await ZKPStorage.deploy();
 
+    const MultibaseContract = await ethers.getContractFactory("MultibaseContract");
+    const multibaseContract = await MultibaseContract.deploy();
+
     const documentStorageAddress = await documentStorage.getAddress();
     const vcMetaStorageAddress = await vcMetaStorage.getAddress();
     const zkpStorageAddress = await zkpStorage.getAddress();
+    const multibaseContractAddress = await multibaseContract.getAddress();
 
     // OpenDID 배포
     const OpenDIDFactory = await ethers.getContractFactory("OpenDID");
-    openDID = await upgrades.deployProxy(OpenDIDFactory, [documentStorageAddress, vcMetaStorageAddress, zkpStorageAddress], { kind: "uups" });
+    openDID = await upgrades.deployProxy(OpenDIDFactory, [documentStorageAddress, vcMetaStorageAddress, zkpStorageAddress, multibaseContractAddress], { kind: "uups" });
     await openDID.waitForDeployment();
   });
 
@@ -36,8 +40,21 @@ describe("OpenDID Contract", function () {
     expect(initialized).to.be.true;
   });
 
-  it("should register a DID document", async () => {
-    const didDoc = getLocalJson("./data/document.json");
+  it("should register a base58 encoding did document", async () => {
+    const didDoc = getLocalJson("./data/tas_base58_verificationMethod.json");
+
+    await expect(openDID.registDidDoc(didDoc, "Admin"))
+      .to.emit(openDID, "DIDCreated")
+      .withArgs(didDoc.id, owner.address);
+
+    const storedDocumentAndStatus = await openDID.getDidDoc(didDoc.id);
+
+    expect(storedDocumentAndStatus.diddoc.id).to.equal(didDoc.id);
+    expect(storedDocumentAndStatus.status).to.equal(0);
+  });
+
+  it("should register a base64 encoding did document", async () => {
+    const didDoc = getLocalJson("./data/tas_base64_verificationMethod.json");
 
     await expect(openDID.registDidDoc(didDoc, "Admin"))
       .to.emit(openDID, "DIDCreated")

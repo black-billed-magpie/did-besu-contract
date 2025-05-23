@@ -1,0 +1,34 @@
+{
+    "context": [
+        "https://www.w3.org/ns/did/v1"
+    ],
+    "assertionsMethod": [
+        "assert"
+    ],
+    "authentication": [
+        "auth"
+    ],
+    "capabilityInvocation": [
+        "invoke"
+    ],
+    "capabilityDelegation": [],
+    "services":[],
+    "controller": "did:omn:tas",
+    "created": "2025-05-20T08:51:10Z",
+    "deactivated": false,
+    "id": "did:omn:tas",
+    "keyAgreement": [
+        "keyagree"
+    ],
+    "updated": "2025-05-20T08:51:10Z",
+    "verificationMethod": [
+        {
+            "authType": 1,
+            "controller": "did:omn:tas",
+            "id": "assert",
+            "publicKeyMultibase": "mAs53v6i6Y//rXUS51octt4uAyAJCZiYEv1aGD652KAFB",
+            "keyType": "1"
+        }
+    ],
+    "versionId": "1"
+}

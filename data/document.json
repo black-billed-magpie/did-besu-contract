@@ -44,16 +44,16 @@
   "services": [
     {
       "id": "did:example:123456789abcdefghi#vcs",
-      "serviceEndpoint": "https://example.com/vc/",
-      "serviceType": [
+      "serviceType": "https://example.com/vc/",
+      "serviceEndpoint": [
         "VerifiableCredentialService",
         "IdentityHub"
       ]
     },
     {
       "id": "did:example:123456789abcdefghi#discovery",
-      "serviceEndpoint": "https://example.com/discovery/",
-      "serviceType": [
+      "serviceType": "https://example.com/discovery/",
+      "serviceEndpoint": [
         "DiscoveryService"
       ]
     }

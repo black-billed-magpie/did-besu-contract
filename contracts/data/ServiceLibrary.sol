@@ -9,8 +9,8 @@ library ServiceLibrary {
 
     struct Service {
         string id;
-        string serviceEndpoint;
-        string[] serviceType;
+        string serviceType;
+        string[] serviceEndpoint;
     }
 
     function toJson(
@@ -21,10 +21,10 @@ library ServiceLibrary {
                 abi.encodePacked(
                     '{"id":"',
                     service.id,
-                    '","serviceEndpoint":"',
-                    service.serviceEndpoint,
-                    '","serviceType":[',
-                    _stringArrayToJson(service.serviceType),
+                    '","serviceType":"',
+                    service.serviceType,
+                    '","serviceEndpoint":[',
+                    _stringArrayToJson(service.serviceEndpoint),
                     "]}"
                 )
             );
@@ -55,17 +55,17 @@ library ServiceLibrary {
         if (
             keccak256(abi.encodePacked(a.id)) !=
             keccak256(abi.encodePacked(b.id)) ||
-            keccak256(abi.encodePacked(a.serviceEndpoint)) !=
-            keccak256(abi.encodePacked(b.serviceEndpoint)) ||
-            a.serviceType.length != b.serviceType.length
+            keccak256(abi.encodePacked(a.serviceType)) !=
+            keccak256(abi.encodePacked(b.serviceType)) ||
+            a.serviceEndpoint.length != b.serviceEndpoint.length
         ) {
             return false;
         }
 
-        for (uint256 i = 0; i < a.serviceType.length; i++) {
+        for (uint256 i = 0; i < a.serviceEndpoint.length; i++) {
             if (
-                keccak256(abi.encodePacked(a.serviceType[i])) !=
-                keccak256(abi.encodePacked(b.serviceType[i]))
+                keccak256(abi.encodePacked(a.serviceEndpoint[i])) !=
+                keccak256(abi.encodePacked(b.serviceEndpoint[i]))
             ) {
                 return false;
             }

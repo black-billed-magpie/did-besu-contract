@@ -65,6 +65,7 @@ library ZKPLibrary {
 
     struct AttributeNamespace {
         string id;
+        string name;
         string ref;
     }
 

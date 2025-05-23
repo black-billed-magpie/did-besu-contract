@@ -17,7 +17,7 @@ library DocumentLibrary {
         string versionId;
         bool deactivated;
         VerificationMethodLibrary.VerificationMethod[] verificationMethod;
-        string[] assertionsMethod;
+        string[] assertionMethod;
         string[] authentication;
         string[] keyAgreement;
         string[] capabilityInvocation;
@@ -90,8 +90,8 @@ library DocumentLibrary {
                     doc.deactivated ? "true" : "false",
                     ',"verificationMethod":',
                     verificationMethods,
-                    ',"assertionsMethod":[',
-                    _stringArrayToJson(doc.assertionsMethod),
+                    ',"assertionMethod":[',
+                    _stringArrayToJson(doc.assertionMethod),
                     '],"authentication":[',
                     _stringArrayToJson(doc.authentication),
                     '],"keyAgreement":[',

@@ -25,7 +25,7 @@
       "authType": 1
     }
   ],
-  "assertionsMethod": [
+  "assertionMethod": [
     "did:example:123456789abcdefghi#key-1"
   ],
   "authentication": [

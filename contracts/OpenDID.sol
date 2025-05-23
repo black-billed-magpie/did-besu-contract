@@ -102,6 +102,15 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         _grantRole(keccak256(abi.encodePacked(roleType)), target);
     }
 
+    function isHaveRole(
+        address target,
+        string calldata roleType
+    ) public view returns (bool) {
+        require(target != address(0), "Target address cannot be zero");
+        require(bytes(roleType).length > 0, "Role type cannot be empty");
+        return hasRole(keccak256(abi.encodePacked(roleType)), target);
+    }
+
     function registDidDoc(
         DocumentLibrary.Document calldata _invokedDidDoc
     ) public returns (string memory) {

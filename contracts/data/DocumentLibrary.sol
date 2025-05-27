@@ -4,10 +4,28 @@ pragma solidity ^0.8.27;
 import "./ServiceLibrary.sol";
 import "./VerificationMethodLibrary.sol";
 
+/**
+ * @title DocumentLibrary
+ * @dev Library for handling DID Documents, their statuses, and JSON serialization for Verifiable Credentials.
+ */
 library DocumentLibrary {
-    using ServiceLibrary for ServiceLibrary.Service;
-    using VerificationMethodLibrary for VerificationMethodLibrary.VerificationMethod;
-
+    /**
+     * @dev Structure representing a DID Document.
+     * @param context The array of context strings.
+     * @param id The DID Document ID.
+     * @param controller The controller DID or address.
+     * @param created The creation timestamp.
+     * @param updated The update timestamp.
+     * @param versionId The version identifier.
+     * @param deactivated Whether the DID Document is deactivated.
+     * @param verificationMethod The array of verification methods.
+     * @param assertionMethod The array of assertion method IDs.
+     * @param authentication The array of authentication method IDs.
+     * @param keyAgreement The array of key agreement method IDs.
+     * @param capabilityInvocation The array of capability invocation method IDs.
+     * @param capabilityDelegation The array of capability delegation method IDs.
+     * @param services The array of service endpoints.
+     */
     struct Document {
         string[] context;
         string id;
@@ -17,7 +35,7 @@ library DocumentLibrary {
         string versionId;
         bool deactivated;
         VerificationMethodLibrary.VerificationMethod[] verificationMethod;
-        string[] assertionsMethod;
+        string[] assertionMethod;
         string[] authentication;
         string[] keyAgreement;
         string[] capabilityInvocation;
@@ -25,6 +43,11 @@ library DocumentLibrary {
         ServiceLibrary.Service[] services;
     }
 
+    /**
+     * @dev Sets the deactivated status of a DID Document based on a status string.
+     * @param _document The DID Document to update.
+     * @param _status The status string ("ACTIVATED" or "DEACTIVATED").
+     */
     function setActivated(
         Document memory _document,
         string calldata _status
@@ -42,6 +65,11 @@ library DocumentLibrary {
         }
     }
 
+    /**
+     * @dev Converts a Document struct to a JSON string.
+     * @param doc The Document struct.
+     * @return The JSON string representation.
+     */
     function documentToJson(
         Document memory doc
     ) internal pure returns (string memory) {
@@ -90,8 +118,8 @@ library DocumentLibrary {
                     doc.deactivated ? "true" : "false",
                     ',"verificationMethod":',
                     verificationMethods,
-                    ',"assertionsMethod":[',
-                    _stringArrayToJson(doc.assertionsMethod),
+                    ',"assertionMethod":[',
+                    _stringArrayToJson(doc.assertionMethod),
                     '],"authentication":[',
                     _stringArrayToJson(doc.authentication),
                     '],"keyAgreement":[',
@@ -107,6 +135,11 @@ library DocumentLibrary {
             );
     }
 
+    /**
+     * @dev Converts an array of strings to a JSON array string.
+     * @param array The array of strings.
+     * @return The JSON array string.
+     */
     function _stringArrayToJson(
         string[] memory array
     ) private pure returns (string memory) {
@@ -125,6 +158,9 @@ library DocumentLibrary {
         return json;
     }
 
+    /**
+     * @dev Enum representing possible DID Document statuses.
+     */
     enum DIDDOC_STATUS {
         ACTIVATED,
         DEACTIVATED,
@@ -132,6 +168,14 @@ library DocumentLibrary {
         TERMINATED
     }
 
+    /**
+     * @dev Structure representing the status of a DID Document.
+     * @param id The document ID.
+     * @param status The document status (enum).
+     * @param version The version string.
+     * @param roleType The role type string.
+     * @param terminatedTime The terminated time string.
+     */
     struct DocumentStatus {
         string id;
         DIDDOC_STATUS status;
@@ -140,6 +184,11 @@ library DocumentLibrary {
         string terminatedTime;
     }
 
+    /**
+     * @dev Converts a DocumentStatus struct to a JSON string.
+     * @param doc The DocumentStatus struct.
+     * @return The JSON string representation.
+     */
     function toJson(
         DocumentStatus memory doc
     ) internal pure returns (string memory) {
@@ -161,6 +210,12 @@ library DocumentLibrary {
             );
     }
 
+    /**
+     * @dev Compares two DocumentStatus structs for equality.
+     * @param a The first DocumentStatus struct.
+     * @param b The second DocumentStatus struct.
+     * @return True if equal, false otherwise.
+     */
     function equals(
         DocumentStatus memory a,
         DocumentStatus memory b
@@ -186,6 +241,11 @@ library DocumentLibrary {
             );
     }
 
+    /**
+     * @dev Converts a DIDDOC_STATUS enum value to its string representation.
+     * @param status The DIDDOC_STATUS value.
+     * @return The string representation.
+     */
     function _statusToString(
         DIDDOC_STATUS status
     ) private pure returns (string memory) {
@@ -202,6 +262,12 @@ library DocumentLibrary {
         }
     }
 
+    /**
+     * @dev Updates the status and terminated time of a DocumentStatus struct based on a status string.
+     * @param _documentStatus The DocumentStatus struct to update.
+     * @param _status The new status string.
+     * @param _terminatedTime The terminated time string.
+     */
     function updateStatus(
         DocumentStatus memory _documentStatus,
         string calldata _status,
@@ -231,11 +297,21 @@ library DocumentLibrary {
         }
     }
 
+    /**
+     * @dev Structure representing a DID Document and its status.
+     * @param diddoc The DID Document struct.
+     * @param status The DIDDOC_STATUS value.
+     */
     struct DocumentAndStatus {
         Document diddoc;
         DIDDOC_STATUS status;
     }
 
+    /**
+     * @dev Converts a DocumentAndStatus struct to a JSON string.
+     * @param doc The DocumentAndStatus struct.
+     * @return The JSON string representation.
+     */
     function toJson(
         DocumentAndStatus memory doc
     ) internal pure returns (string memory) {

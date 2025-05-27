@@ -40,10 +40,18 @@ describe("OpenDID Contract", function () {
     expect(initialized).to.be.true;
   });
 
+  it("should regist role", async () => {
+    const role = "Admin";
+    const address = "0xc31F3d40e23468c47099C9c50443f9c7D4eE1F7A"
+    await openDID.registRole(address, role);
+    const hasRole = await openDID.isHaveRole(address, role);
+    expect(hasRole).to.be.true;
+  });
+
   it("should register a base58 encoding did document", async () => {
     const didDoc = getLocalJson("./data/tas_base58_verificationMethod.json");
 
-    await expect(openDID.registDidDoc(didDoc, "Admin"))
+    await expect(openDID.registDidDoc(didDoc))
       .to.emit(openDID, "DIDCreated")
       .withArgs(didDoc.id, owner.address);
 
@@ -56,7 +64,7 @@ describe("OpenDID Contract", function () {
   it("should register a base64 encoding did document", async () => {
     const didDoc = getLocalJson("./data/tas_base64_verificationMethod.json");
 
-    await expect(openDID.registDidDoc(didDoc, "Admin"))
+    await expect(openDID.registDidDoc(didDoc))
       .to.emit(openDID, "DIDCreated")
       .withArgs(didDoc.id, owner.address);
 
@@ -76,7 +84,7 @@ describe("OpenDID Contract", function () {
     const didDoc = getLocalJson("./data/document.json");
 
     // DID 문서 등록
-    await openDID.registDidDoc(didDoc, "Admin");
+    await openDID.registDidDoc(didDoc);
 
     // 상태 업데이트
     const newStatus = "DEACTIVATED";
@@ -92,7 +100,7 @@ describe("OpenDID Contract", function () {
     const didDoc = getLocalJson("./data/document.json");
 
     // DID 문서 등록
-    await openDID.registDidDoc(didDoc, "Admin");
+    await openDID.registDidDoc(didDoc);
 
     // 상태 업데이트
     const newStatus = "TERMINATED";

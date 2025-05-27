@@ -9,8 +9,8 @@ import "../utils/StringUtils.sol";
 
 /**
  * @title DocumentStorage
- * @notice Stores and manages DID documents and their statuses
- * @dev Uses ERC-7201 namespaced storage pattern
+ * @dev Storage contract for DID documents and their statuses.
+ *      Provides registration, retrieval, update, and removal of documents and their statuses.
  */
 contract DocumentStorage is Initializable, OwnableUpgradeable {
     using DocumentLibrary for DocumentLibrary.Document;

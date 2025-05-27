@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+/**
+ * @title MultibaseContract
+ * @dev Contract for encoding and decoding data using multibase (Base58, Base64) with prefix support.
+ *      Provides utility functions for multibase encoding/decoding, as well as internal helpers for base conversion.
+ */
 contract MultibaseContract {
+    /// @notice Emitted when the MultibaseContract is initialized
     event MultibaseContractSetup();
 
     string internal constant BASE58_ALPHABET =
@@ -18,7 +24,12 @@ contract MultibaseContract {
         emit MultibaseContractSetup();
     }
 
-    // Multibase 인코딩
+    /**
+     * @dev Encodes input bytes to a multibase string with the specified base prefix ("z" for base58, "m" for base64).
+     * @param input The bytes to encode.
+     * @param base The base to use ("base58" or "base64").
+     * @return The multibase-encoded string.
+     */
     function encodeMultibase(
         bytes memory input,
         string memory base
@@ -32,7 +43,11 @@ contract MultibaseContract {
         }
     }
 
-    // Multibase 디코딩
+    /**
+     * @dev Decodes a multibase string (with prefix) to bytes.
+     * @param input The multibase-encoded string.
+     * @return The decoded bytes.
+     */
     function decodeMultibase(
         string memory input
     ) external pure returns (bytes memory) {
@@ -52,6 +67,11 @@ contract MultibaseContract {
         }
     }
 
+    /**
+     * @dev Encodes bytes to a base58 string.
+     * @param input The bytes to encode.
+     * @return The base58-encoded string.
+     */
     function encodeBase58(
         bytes memory input
     ) internal pure returns (string memory) {
@@ -102,6 +122,11 @@ contract MultibaseContract {
         return string(result);
     }
 
+    /**
+     * @dev Decodes a base58 string to bytes.
+     * @param input The base58-encoded string.
+     * @return The decoded bytes.
+     */
     function decodeBase58(
         string memory input
     ) internal pure returns (bytes memory) {
@@ -145,6 +170,11 @@ contract MultibaseContract {
         return decoded;
     }
 
+    /**
+     * @dev Encodes bytes to a base64 string.
+     * @param data The bytes to encode.
+     * @return The base64-encoded string.
+     */
     function encodeBase64(
         bytes memory data
     ) internal pure returns (string memory) {
@@ -191,6 +221,11 @@ contract MultibaseContract {
         return result;
     }
 
+    /**
+     * @dev Decodes a base64 string to bytes.
+     * @param _data The base64-encoded string.
+     * @return The decoded bytes.
+     */
     function decodeBase64(
         string memory _data
     ) internal pure returns (bytes memory) {
@@ -223,6 +258,9 @@ contract MultibaseContract {
         return result;
     }
 
+    /**
+     * @dev Performs division and modulo operations for base conversion on a bytes array.
+     */
     function divmod(
         bytes memory number,
         uint256 firstDigit,
@@ -239,6 +277,9 @@ contract MultibaseContract {
         return uint8(remainder);
     }
 
+    /**
+     * @dev Performs division and modulo operations for base conversion on a uint256 array.
+     */
     function divmod(
         uint256[] memory number,
         uint256 firstDigit,
@@ -255,6 +296,11 @@ contract MultibaseContract {
         return uint8(remainder);
     }
 
+    /**
+     * @dev Finds the index of a character in the base58 alphabet.
+     * @param char The character to find.
+     * @return The index in the alphabet.
+     */
     function indexOf(uint8 char) private pure returns (uint8) {
         bytes memory alphabetBytes = bytes(BASE58_ALPHABET);
         for (uint8 i = 0; i < alphabetBytes.length; i++) {
@@ -265,6 +311,13 @@ contract MultibaseContract {
         revert("Character not found in Base58 alphabet");
     }
 
+    /**
+     * @dev Returns a substring of a string from startIndex (inclusive) to endIndex (exclusive).
+     * @param str The original string.
+     * @param startIndex The starting index (inclusive).
+     * @param endIndex The ending index (exclusive).
+     * @return The substring.
+     */
     function substring(
         string memory str,
         uint startIndex,

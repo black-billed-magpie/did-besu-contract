@@ -18,17 +18,30 @@ import "./storage/ZKPStorage.sol";
 
 import "./crypto/MultibaseContract.sol";
 
+/**
+ * @title OpenDID
+ * @dev Smart contract for managing DIDs, VCs, and ZKP credentials with role-based access control.
+ * It provides document and credential registration, status management, and integration with multibase encoding/decoding.
+ */
 contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     // Event declaration
+    // Emitted when the contract is initialized
     event Setup();
+    // Emitted when a new DID is created
     event DIDCreated(string did, address controller);
+    // Emitted when a DID is updated
     event DIDUpdated(string did, address controller);
+    // Emitted when a DID is deactivated
     event DIDDeactivated(string did, address controller);
+    // Emitted when a Verifiable Credential is issued
     event VCIssued(string vcId, address issuer, string did);
+    // Emitted when a VC status is updated
     event VCStatus(string vcId, address player, string status);
+    // Emitted when a VC schema is created
     event VCSchemaCreated(string schemaId, address issuer);
 
     // Libraries
+    // Using library functions for Document, VcMeta, VcSchema, CredentialSchema, and CredentialDefinition
     using DocumentLibrary for DocumentLibrary.Document;
     using VcMetaLibrary for VcMetaLibrary.VcMeta;
     using VcSchemaMetaLibrary for VcSchemaMetaLibrary.VcSchema;
@@ -36,12 +49,18 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     using ZKPLibrary for ZKPLibrary.CredentialDefinition;
 
     // Storage contracts
+    // Storage for documents, VC metadata, and ZKP credentials
     DocumentStorage private documentStorage;
     VcMetaStorage private vcMetaStorage;
     ZKPStorage private zkpStorage;
 
+    // Multibase contract for encoding/decoding public keys
     MultibaseContract private multibaseContract;
 
+    /**
+     * @dev Initializes the contract with storage and multibase contract addresses.
+     * Grants ADMIN_ROLE to the deployer.
+     */
     function initialize(
         address _documentStorage,
         address _vcMetaStorage,
@@ -67,32 +86,52 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         emit Setup();
     }
 
+    /**
+     * @dev Returns true if the contract has been initialized.
+     */
     function hasInitialized() public view returns (bool) {
         return _getInitializedVersion() > 0;
     }
 
+    /**
+     * @dev Authorizes contract upgrades. Only ADMIN_ROLE can upgrade.
+     */
     function _authorizeUpgrade(
         address newImplement
     ) internal override onlyRole(RoleLibrary.ADMIN_ROLE) {}
 
+    /**
+     * @dev Sets the DocumentStorage contract address. Only ADMIN_ROLE can call.
+     */
     function setDocumentStorage(
         address _documentStorage
     ) public onlyRole(RoleLibrary.ADMIN_ROLE) {
         documentStorage = DocumentStorage(_documentStorage);
     }
 
+    /**
+     * @dev Sets the VcMetaStorage contract address. Only ADMIN_ROLE can call.
+     */
     function setVcMetaStorage(
         address _vcMetaStorage
     ) public onlyRole(RoleLibrary.ADMIN_ROLE) {
         vcMetaStorage = VcMetaStorage(_vcMetaStorage);
     }
 
+    /**
+     * @dev Sets the ZKPStorage contract address. Only ADMIN_ROLE can call.
+     */
     function setZKPStorage(
         address _zkpStorage
     ) public onlyRole(RoleLibrary.ADMIN_ROLE) {
         zkpStorage = ZKPStorage(_zkpStorage);
     }
 
+    /**
+     * @dev Grants a role to a target address. Only ADMIN_ROLE can call.
+     * @param target The address to grant the role to.
+     * @param roleType The string identifier of the role.
+     */
     function registRole(
         address target,
         string calldata roleType
@@ -102,6 +141,12 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         _grantRole(keccak256(abi.encodePacked(roleType)), target);
     }
 
+    /**
+     * @dev Checks if a target address has a specific role.
+     * @param target The address to check.
+     * @param roleType The string identifier of the role.
+     * @return True if the address has the role, false otherwise.
+     */
     function isHaveRole(
         address target,
         string calldata roleType
@@ -111,6 +156,11 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         return hasRole(keccak256(abi.encodePacked(roleType)), target);
     }
 
+    /**
+     * @dev Registers a new DID Document.
+     * @param _invokedDidDoc The DID Document to register.
+     * @return The registered document as a JSON string.
+     */
     function registDidDoc(
         DocumentLibrary.Document calldata _invokedDidDoc
     ) public returns (string memory) {
@@ -131,6 +181,11 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         }
     }
 
+    /**
+     * @dev Retrieves a DID Document and its status by DID.
+     * @param _did The DID to query.
+     * @return The DocumentAndStatus struct.
+     */
     function getDidDoc(
         string calldata _did
     ) public view returns (DocumentLibrary.DocumentAndStatus memory) {
@@ -150,6 +205,11 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         }
     }
 
+    /**
+     * @dev Retrieves the status of a DID Document.
+     * @param _did The DID to query.
+     * @return The DocumentStatus struct.
+     */
     function getDidDocStatus(
         string calldata _did
     ) public view returns (DocumentLibrary.DocumentStatus memory) {
@@ -163,6 +223,12 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         return documentStatus;
     }
 
+    /**
+     * @dev Updates the status of a DID Document in service.
+     * @param _did The DID to update.
+     * @param _status The new status.
+     * @param _versionId The version ID of the document.
+     */
     function updateDidDocStatusInService(
         string calldata _did,
         string calldata _status,
@@ -193,6 +259,12 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         }
     }
 
+    /**
+     * @dev Updates the status of a DID Document for revocation.
+     * @param _did The DID to update.
+     * @param _status The new status.
+     * @param _terminatedTime The time of termination.
+     */
     function updateDidDocStatusRevocation(
         string calldata _did,
         string calldata _status,
@@ -217,11 +289,20 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         }
     }
 
+    /**
+     * @dev Registers Verifiable Credential metadata.
+     * @param _vcMeta The VC metadata to register.
+     */
     function registVcMetaData(VcMetaLibrary.VcMeta calldata _vcMeta) public {
         vcMetaStorage.registerVcMeta(_vcMeta);
         emit VCIssued(_vcMeta.id, msg.sender, _vcMeta.issuer.did);
     }
 
+    /**
+     * @dev Retrieves Verifiable Credential metadata by ID.
+     * @param _id The VC ID to query.
+     * @return The VcMeta struct.
+     */
     function getVcmetaData(
         string calldata _id
     ) public view returns (VcMetaLibrary.VcMeta memory) {
@@ -236,6 +317,11 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         }
     }
 
+    /**
+     * @dev Updates the status of a Verifiable Credential.
+     * @param _vcId The VC ID to update.
+     * @param _status The new status.
+     */
     function updateVcStats(
         string calldata _vcId,
         string calldata _status
@@ -244,6 +330,10 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         emit VCStatus(_vcId, msg.sender, _status);
     }
 
+    /**
+     * @dev Registers a new VC schema.
+     * @param _vcSchema The VC schema to register.
+     */
     function registVcSchema(
         VcSchemaMetaLibrary.VcSchema calldata _vcSchema
     ) public {
@@ -261,6 +351,11 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         emit VCSchemaCreated(_vcSchema.id, msg.sender);
     }
 
+    /**
+     * @dev Retrieves a VC schema by ID.
+     * @param _id The schema ID to query.
+     * @return The VcSchema struct.
+     */
     function getVcSchema(
         string calldata _id
     ) public view returns (VcSchemaMetaLibrary.VcSchema memory) {
@@ -275,12 +370,21 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         }
     }
 
+    /**
+     * @dev Registers a new ZKP credential schema.
+     * @param _credentialSchema The credential schema to register.
+     */
     function registZKPCredential(
         ZKPLibrary.CredentialSchema calldata _credentialSchema
     ) public {
         zkpStorage.registerSchema(_credentialSchema);
     }
 
+    /**
+     * @dev Retrieves a ZKP credential schema by ID.
+     * @param _id The schema ID to query.
+     * @return The CredentialSchema struct.
+     */
     function getZKPCredential(
         string calldata _id
     ) public view returns (ZKPLibrary.CredentialSchema memory) {
@@ -295,12 +399,21 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         }
     }
 
+    /**
+     * @dev Registers a new ZKP credential definition.
+     * @param _credentialDefinition The credential definition to register.
+     */
     function registZKPCredentialDefinition(
         ZKPLibrary.CredentialDefinition calldata _credentialDefinition
     ) public {
         zkpStorage.registerCredentialDefinition(_credentialDefinition);
     }
 
+    /**
+     * @dev Retrieves a ZKP credential definition by ID.
+     * @param _id The definition ID to query.
+     * @return The CredentialDefinition struct.
+     */
     function getZKPCredentialDefinition(
         string calldata _id
     ) public view returns (ZKPLibrary.CredentialDefinition memory) {

@@ -23,6 +23,13 @@ async function deployContract() {
         const zkpStorageAddress = await zkpStorage.getAddress();
         console.log("ZKPStorage deployed to:", zkpStorageAddress);
 
+        const MultibaseContract = await ethers.getContractFactory(
+            "MultibaseContract",
+        )
+        const multibaseContract = await MultibaseContract.deploy();
+        const multibaseContractAddress = await multibaseContract.getAddress();
+        console.log("MultibaseContract deployed to:", multibaseContractAddress);
+
         const OpenDID = await ethers.getContractFactory(
             "OpenDID",
         );
@@ -31,6 +38,7 @@ async function deployContract() {
             documentStorageAddress,
             vcMetaStorageAddress,
             zkpStorageAddress,
+            multibaseContractAddress,
         ], {
             kind: "uups",
         });

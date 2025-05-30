@@ -164,6 +164,11 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     function registDidDoc(
         DocumentLibrary.Document calldata _invokedDidDoc
     ) public returns (string memory) {
+        require(
+            hasRole(RoleLibrary.TAS, msg.sender),
+            "Caller does not have TAS role"
+        );
+
         try
             documentStorage.registerDocument(_invokedDidDoc, msg.sender)
         returns (bool isSuccess) {
@@ -234,6 +239,11 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         string calldata _status,
         string calldata _versionId
     ) public {
+        require(
+            hasRole(RoleLibrary.TAS, msg.sender),
+            "Caller does not have TAS role"
+        );
+
         try documentStorage.getDocument(_did, _versionId) returns (
             DocumentLibrary.Document memory document
         ) {

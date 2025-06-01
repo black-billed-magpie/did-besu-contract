@@ -164,10 +164,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     function registDidDoc(
         DocumentLibrary.Document calldata _invokedDidDoc
     ) public returns (string memory) {
-        require(
-            hasRole(RoleLibrary.TAS, msg.sender),
-            "Caller does not have TAS role"
-        );
+        validateTasRole();
 
         try
             documentStorage.registerDocument(_invokedDidDoc, msg.sender)
@@ -239,10 +236,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         string calldata _status,
         string calldata _versionId
     ) public {
-        require(
-            hasRole(RoleLibrary.TAS, msg.sender),
-            "Caller does not have TAS role"
-        );
+        validateTasRole();
 
         try documentStorage.getDocument(_did, _versionId) returns (
             DocumentLibrary.Document memory document
@@ -280,6 +274,8 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         string calldata _status,
         string calldata _terminatedTime
     ) public {
+        validateTasRole();
+
         try documentStorage.getDocumentStatus(_did) returns (
             DocumentLibrary.DocumentStatus memory documentStatus
         ) {
@@ -304,6 +300,8 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
      * @param _vcMeta The VC metadata to register.
      */
     function registVcMetaData(VcMetaLibrary.VcMeta calldata _vcMeta) public {
+        validateIssuerRole();
+
         vcMetaStorage.registerVcMeta(_vcMeta);
         emit VCIssued(_vcMeta.id, msg.sender, _vcMeta.issuer.did);
     }
@@ -336,6 +334,8 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         string calldata _vcId,
         string calldata _status
     ) public {
+        validateIssuerRole();
+
         vcMetaStorage.updateVcMetaStatus(_vcId, _status);
         emit VCStatus(_vcId, msg.sender, _status);
     }
@@ -356,6 +356,8 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
             bytes(_vcSchema.title).length > 0,
             "Schema title cannot be empty"
         );
+
+        validateTasOrIssuerRole();
 
         vcMetaStorage.registerVcSchema(_vcSchema);
         emit VCSchemaCreated(_vcSchema.id, msg.sender);
@@ -387,6 +389,8 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     function registZKPCredential(
         ZKPLibrary.CredentialSchema calldata _credentialSchema
     ) public {
+        validateTasOrIssuerRole();
+
         zkpStorage.registerSchema(_credentialSchema);
     }
 
@@ -416,6 +420,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     function registZKPCredentialDefinition(
         ZKPLibrary.CredentialDefinition calldata _credentialDefinition
     ) public {
+        validateTasOrIssuerRole();
         zkpStorage.registerCredentialDefinition(_credentialDefinition);
     }
 
@@ -438,5 +443,27 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
                 "Unknown error occurred during ZKP credential definition retrieval"
             );
         }
+    }
+
+    function validateTasRole() internal view {
+        require(
+            hasRole(RoleLibrary.TAS, msg.sender),
+            "Caller does not have TAS role"
+        );
+    }
+
+    function validateIssuerRole() internal view {
+        require(
+            hasRole(RoleLibrary.ISSUER, msg.sender),
+            "Caller does not have Issuer role"
+        );
+    }
+
+    function validateTasOrIssuerRole() internal view {
+        require(
+            hasRole(RoleLibrary.TAS, msg.sender) ||
+                hasRole(RoleLibrary.ISSUER, msg.sender),
+            "Caller does not have TAS or Issuer role"
+        );
     }
 }

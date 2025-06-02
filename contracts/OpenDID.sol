@@ -300,7 +300,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
      * @param _vcMeta The VC metadata to register.
      */
     function registVcMetaData(VcMetaLibrary.VcMeta calldata _vcMeta) public {
-        validateIssuerRole();
+        validateTasOrIssuerRole();
 
         vcMetaStorage.registerVcMeta(_vcMeta);
         emit VCIssued(_vcMeta.id, msg.sender, _vcMeta.issuer.did);
@@ -334,7 +334,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
         string calldata _vcId,
         string calldata _status
     ) public {
-        validateIssuerRole();
+        validateTasOrIssuerRole();
 
         vcMetaStorage.updateVcMetaStatus(_vcId, _status);
         emit VCStatus(_vcId, msg.sender, _status);
@@ -357,7 +357,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
             "Schema title cannot be empty"
         );
 
-        validateTasOrIssuerRole();
+        validateIssuerRole();
 
         vcMetaStorage.registerVcSchema(_vcSchema);
         emit VCSchemaCreated(_vcSchema.id, msg.sender);
@@ -389,7 +389,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     function registZKPCredential(
         ZKPLibrary.CredentialSchema calldata _credentialSchema
     ) public {
-        validateTasOrIssuerRole();
+        validateIssuerRole();
 
         zkpStorage.registerSchema(_credentialSchema);
     }
@@ -420,7 +420,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
     function registZKPCredentialDefinition(
         ZKPLibrary.CredentialDefinition calldata _credentialDefinition
     ) public {
-        validateTasOrIssuerRole();
+        validateIssuerRole();
         zkpStorage.registerCredentialDefinition(_credentialDefinition);
     }
 

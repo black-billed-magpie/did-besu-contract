@@ -97,9 +97,13 @@ describe("OpenDID Contract", function () {
 
   it("should register and retrieve VC metadata", async () => {
     const vcMeta = getLocalJson("./data/vcMeta.json");
-    await expect(openDID.registVcMetaData(vcMeta))
+
+    // addr1을 issuer로 사용
+    await openDID.registRole(addr1.address, "Issuer");
+
+    await expect(openDID.connect(addr1).registVcMetaData(vcMeta))
       .to.emit(openDID, "VCIssued")
-      .withArgs(vcMeta.id, owner.address, vcMeta.issuer.did);
+      .withArgs(vcMeta.id, addr1.address, vcMeta.issuer.did);
     const storedVcMeta = await openDID.getVcmetaData(vcMeta.id);
     expect(storedVcMeta.id).to.equal(vcMeta.id);
     expect(storedVcMeta.issuer.did).to.equal(vcMeta.issuer.did);
@@ -110,17 +114,105 @@ describe("OpenDID Contract", function () {
 
   it("should register vc schema data", async () => {
     const vcSchema = getLocalJson('./data/vc-schema.json');
-    await expect(openDID.registVcSchema(vcSchema))
+    await openDID.registRole(addr1.address, "Issuer");
+    await expect(openDID.connect(addr1).registVcSchema(vcSchema))
       .to.emit(openDID, "VCSchemaCreated")
-      .withArgs(vcSchema.id, owner.address);
-  });
+      .withArgs(vcSchema.id, addr1.address);
 
-  it("should get vc schema data", async () => {
-    const vcSchema = getLocalJson('./data/vc-schema.json');
-    await openDID.registVcSchema(vcSchema);
     const storedVcSchema = await openDID.getVcSchema(vcSchema.id);
     expect(storedVcSchema.id).to.equal(vcSchema.id);
     expect(storedVcSchema.schema).to.equal(vcSchema.schema);
   });
 
+  it("should allow only ADMIN to set DocumentStorage address", async () => {
+    const DocumentStorage = await ethers.getContractFactory("DocumentStorage");
+    const newStorage = await DocumentStorage.deploy();
+    const newStorageAddress = await newStorage.getAddress();
+
+    // ADMIN(owner) 가능
+    await expect(openDID.setDocumentStorage(newStorageAddress)).to.not.be.reverted;
+  });
+
+  it("should allow only ADMIN to set VcMetaStorage address", async () => {
+    const VcMetaStorage = await ethers.getContractFactory("VcMetaStorage");
+    const newStorage = await VcMetaStorage.deploy();
+    const newStorageAddress = await newStorage.getAddress();
+
+    await expect(openDID.setVcMetaStorage(newStorageAddress)).to.not.be.reverted;
+  });
+
+  it("should allow only ADMIN to set ZKPStorage address", async () => {
+    const ZKPStorage = await ethers.getContractFactory("ZKPStorage");
+    const newStorage = await ZKPStorage.deploy();
+    const newStorageAddress = await newStorage.getAddress();
+
+    await expect(openDID.setZKPStorage(newStorageAddress)).to.not.be.reverted;
+  });
+
+  it("should only allow ISSUER to register and get ZKP credential schema", async () => {
+    // addr1에게 ISSUER 권한 부여
+    await openDID.registRole(addr1.address, "Issuer");
+
+    const credentialSchema = getLocalJson("./data/credential-schema.json");
+
+    // 권한 없는 계정은 실패
+    await expect(
+      openDID.registZKPCredential(credentialSchema)
+    ).to.be.revertedWith("Caller does not have Issuer role");
+
+    // 권한 있는 계정은 성공
+    await expect(
+      openDID.connect(addr1).registZKPCredential(credentialSchema)
+    ).to.not.be.reverted;
+
+    // 조회도 정상 동작
+    const stored = await openDID.getZKPCredential(credentialSchema.id);
+    expect(stored.id).to.equal(credentialSchema.id);
+    expect(stored.name).to.equal(credentialSchema.name);
+  });
+
+  it("should only allow ISSUER to register and get ZKP credential definition", async () => {
+    await openDID.registRole(addr1.address, "Issuer");
+
+    const credentialDefinition = getLocalJson("./data/credential-definition.json");
+
+    await expect(
+      openDID.registZKPCredentialDefinition(credentialDefinition)
+    ).to.be.revertedWith("Caller does not have Issuer role");
+
+    await expect(
+      openDID.connect(addr1).registZKPCredentialDefinition(credentialDefinition)
+    ).to.not.be.reverted;
+
+    const stored = await openDID.getZKPCredentialDefinition(credentialDefinition.id);
+    expect(stored.id).to.equal(credentialDefinition.id);
+    expect(stored.schemaId).to.equal(credentialDefinition.schemaId);
+  });
+
+  it("should revert registRole if target is zero address or roleType is empty", async () => {
+    await expect(
+      openDID.registRole(ethers.ZeroAddress, "ISSUER")
+    ).to.be.revertedWith("Target address cannot be zero");
+
+    await expect(
+      openDID.registRole(addr1.address, "")
+    ).to.be.revertedWith("Role type cannot be empty");
+  });
+
+  it("should revert isHaveRole if target is zero address or roleType is empty", async () => {
+    await expect(
+      openDID.isHaveRole(ethers.ZeroAddress, "ISSUER")
+    ).to.be.revertedWith("Target address cannot be zero");
+
+    await expect(
+      openDID.isHaveRole(addr1.address, "")
+    ).to.be.revertedWith("Role type cannot be empty");
+  });
+
+  it("should only allow ADMIN to upgrade contract", async () => {
+    const OpenDIDFactory = await ethers.getContractFactory("OpenDID");
+    await expect(
+      upgrades.upgradeProxy(openDID, OpenDIDFactory.connect(addr1))
+    ).to.be.revertedWithCustomError(openDID, "AccessControlUnauthorizedAccount");
+  });
 });

@@ -1,0 +1,45 @@
+@startuml initialize-contract
+
+title Initialize Contract
+
+actor Owner
+participant OpenDID
+participant OpenZeppelin
+participant DocumentStorage
+participant VcMetaStorage
+participant ZKPStorage
+
+Owner -> OpenDID: Call initialize(_documentStorage, _vcMetaStorage, _zkpStorage)
+note right of Owner #Aquamarine
+    OPENDID contract에 대해서 초기화 함수 실행
+    각 Sotrage contract는 사전에 배포
+    _documentStorage, _vcMetaStorage, _zkpStorage를 인자로 전달
+
+    **_documentStorage**: DocumentStorage contract address
+    **_vcMetaStorage**: VcMetaStorage contract address
+    **_zkpStorage**: ZKPStorage contract address
+end note
+OpenDID -> OpenZeppelin: Initialize OwnableUpgradeable
+OpenZeppelin -> OpenDID: Set owner to msg.sender
+OpenDID -> OpenZeppelin: Initialize Initializable
+note left of OpenZeppelin #Aquamarine
+    OpenZeppelin의 Initializable contract를 상속받아
+    OpenDID contract의 초기화 함수에서
+    OpenZeppelin의 Initializable contract의 initialize 함수를 호출
+    msg.sender를 owner로 설정
+end note
+OpenZeppelin -> OpenDID: Acknowledge initialization
+
+OpenDID -> OpenDID: Validate _documentStorage address
+OpenDID -> DocumentStorage: Set DocumentStorage instance
+OpenDID -> OpenDID: Validate _vcMetaStorage address
+OpenDID -> VcMetaStorage: Set VcMetaStorage instance
+OpenDID -> OpenDID: Validate _zkpStorage address
+OpenDID -> ZKPStorage: Set ZKPStorage instance
+OpenDID -> OpenDID: Set initialized to true
+
+OpenDID -> OpenDID: Emit Setup event
+Owner <- OpenDID: Initialization complete
+
+
+@enduml

@@ -357,7 +357,7 @@ contract OpenDID is Initializable, UUPSUpgradeable, AccessControl {
             "Schema title cannot be empty"
         );
 
-        validateIssuerRole();
+        validateTasOrIssuerRole();
 
         vcMetaStorage.registerVcSchema(_vcSchema);
         emit VCSchemaCreated(_vcSchema.id, msg.sender);

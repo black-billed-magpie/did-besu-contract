@@ -96,7 +96,7 @@ describe("OpenDID Contract", function () {
   });
 
   it("should register and retrieve VC metadata", async () => {
-    const vcMeta = getLocalJson("./data/vcMeta.json");
+    const vcMeta = getLocalJson("./data/vcmeta.json");
 
     // addr1을 issuer로 사용
     await openDID.registRole(addr1.address, "Issuer");

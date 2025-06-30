@@ -1,0 +1,92 @@
+# .github/workflows/ci-cd.yml
+
+name: Hardhat CI, Release, and Publish
+
+# 워크플로우를 트리거할 이벤트를 정의합니다.
+on:
+  # 1. main 브랜치로의 push (테스트 및 릴리스 생성용)
+  push:
+    branches:
+      - main
+  # 2. main 브랜치로의 pull request (테스트용)
+  pull_request:
+    branches:
+      - main
+  # 3. 릴리스가 'created'되었을 때 (패키지 발행용)
+  release:
+    types: [created]
+
+jobs:
+  # Job 1: 테스트 실행
+  # push 또는 pull_request 이벤트일 때만 이 잡(job)을 실행합니다.
+  test:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    name: Run Hardhat Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npx hardhat test
+
+  # Job 2: GitHub 릴리스 생성 및 아티팩트 업로드
+  # test 잡이 성공하고, main 브랜치에 push 되었을 때만 실행합니다.
+  create-release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      # 릴리스와 태그를 생성하기 위해 contents: write 권한이 필요합니다.
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 컴파일을 위해 Node.js 환경 설정 및 의존성 설치
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 릴리스에 포함할 컨트랙트 아티팩트를 생성합니다.
+      - name: Compile contracts
+        run: npx hardhat compile
+
+      # 생성된 artifacts 폴더를 zip 파일로 압축합니다.
+      - name: Package artifacts
+        run: zip -r artifacts.zip ./artifacts
+
+      # 릴리스를 생성하고 압축된 아티팩트 파일을 함께 업로드합니다.
+      - name: Create Release and Upload Artifacts
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # 워크플로우 실행 번호를 사용하여 고유한 버전 태그를 생성합니다.
+          tag_name: v1.0.${{ github.run_number }}
+          release_name: Release v1.0.${{ github.run_number }}
+          body: |
+            Automated release created from a push to main.
+            This release includes the compiled contract artifacts.
+          draft: false
+          prerelease: false
+          # 릴리스에 첨부할 파일 경로, 이름, 타입을 지정합니다.
+          asset_path: ./artifacts.zip
+          asset_name: artifacts.zip
+          asset_content_type: application/zip

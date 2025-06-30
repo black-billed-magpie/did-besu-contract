@@ -1,7 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
+/**
+ * @title VerifySignatureLibrary
+ * @dev Utility library for verifying Ethereum signatures in Solidity.
+ */
 library VerifySignatureLibrary {
+    /**
+     * @dev Verifies that a signature is valid for a given message hash and signer address.
+     * @param messageHash The hash of the original message.
+     * @param signature The signature bytes.
+     * @param signer The address expected to have signed the message.
+     * @return True if the signature is valid, false otherwise.
+     */
     function verifySignature(
         bytes32 messageHash,
         bytes memory signature,
@@ -14,6 +25,12 @@ library VerifySignatureLibrary {
         return recoverSigner(ethSignedMessageHash, signature) == signer;
     }
 
+    /**
+     * @dev Recovers the signer address from a signed message hash and signature.
+     * @param ethSignedMessageHash The Ethereum signed message hash.
+     * @param signature The signature bytes.
+     * @return The recovered address.
+     */
     function recoverSigner(
         bytes32 ethSignedMessageHash,
         bytes memory signature
@@ -22,6 +39,13 @@ library VerifySignatureLibrary {
         return ecrecover(ethSignedMessageHash, v, r, s);
     }
 
+    /**
+     * @dev Splits a signature into r, s, v components.
+     * @param sig The signature bytes (length 65).
+     * @return r The r value.
+     * @return s The s value.
+     * @return v The v value.
+     */
     function splitSignature(
         bytes memory sig
     ) internal pure returns (bytes32 r, bytes32 s, uint8 v) {

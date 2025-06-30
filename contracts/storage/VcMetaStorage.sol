@@ -6,21 +6,35 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "../data/VcMetaLibrary.sol";
 import "../data/VcSchemaMetaLibrary.sol";
 
+/**
+ * @title VcMetaStorage
+ * @dev Storage contract for Verifiable Credential (VC) metadata and VC schemas.
+ *      Provides registration, retrieval, update, and deletion of VC metadata and schemas.
+ */
 contract VcMetaStorage is Initializable {
     using VcMetaLibrary for VcMetaLibrary.VcMeta;
     using VcSchemaMetaLibrary for VcSchemaMetaLibrary.VcSchema;
 
+    /// @notice Emitted when the VcMetaStorage contract is initialized
     event VcMetaStorageSetup();
+    /// @notice Emitted when a VC metadata or schema is registered
     event VcMetaRegistered(string _id, string _vcMetaJson);
 
     constructor() {
         _disableInitializers();
     }
 
+    /**
+     * @notice Initialize the storage contract
+     */
     function initialize() public initializer {
         emit VcMetaStorageSetup();
     }
 
+    /**
+     * @notice Check if the contract is initialized
+     * @return True if the contract is initialized
+     */
     function hasInitialized() public view returns (bool) {
         return _getInitializedVersion() > 0;
     }
@@ -35,6 +49,9 @@ contract VcMetaStorage is Initializable {
     bytes32 internal constant STORAGE_LOCATION =
         keccak256("openDID.storage.VcMetaStorage");
 
+    /**
+     * @dev Returns the storage struct pointer for this contract
+     */
     function _getStorage() private pure returns (Storage storage store) {
         bytes32 position = STORAGE_LOCATION;
         assembly {
@@ -42,6 +59,10 @@ contract VcMetaStorage is Initializable {
         }
     }
 
+    /**
+     * @notice Register a new VC metadata
+     * @param _vcMeta The VC metadata to register
+     */
     function registerVcMeta(VcMetaLibrary.VcMeta calldata _vcMeta) external {
         Storage storage store = _getStorage();
 
@@ -55,6 +76,11 @@ contract VcMetaStorage is Initializable {
         emit VcMetaRegistered(_vcMeta.id, vcMetaJson);
     }
 
+    /**
+     * @notice Get VC metadata by ID
+     * @param _vcMetaId The VC metadata ID
+     * @return The VC metadata struct
+     */
     function getVcMeta(
         string calldata _vcMetaId
     ) external view returns (VcMetaLibrary.VcMeta memory) {
@@ -70,21 +96,37 @@ contract VcMetaStorage is Initializable {
         return store._vcMeta[_vcMetaId];
     }
 
+    /**
+     * @dev Checks if a VC metadata exists by ID
+     * @param _id The VC metadata ID
+     * @return True if exists, false otherwise
+     */
     function _isExist(string calldata _id) internal view returns (bool) {
         Storage storage store = _getStorage();
         // Check if the data exists
         return bytes(store._vcMeta[_id].id).length > 0;
     }
 
+    /**
+     * @notice Update the status of a VC metadata
+     * @param _vcId The VC ID
+     * @param _status The new status ("active", "inactive", "revoked")
+     */
     function updateVcMetaStatus(
         string calldata _vcId,
-        string calldata _status // "active", "inactive", "revoked"
+        string calldata _status
     ) external {
         Storage storage store = _getStorage();
         VcMetaLibrary.VcMeta storage vcMeta = store._vcMeta[_vcId];
         VcMetaLibrary.updateVcStatus(vcMeta, _status);
+
+        store._vcMeta[_vcId] = vcMeta;
     }
 
+    /**
+     * @notice Register a new VC schema
+     * @param _vcSchema The VC schema to register
+     */
     function registerVcSchema(
         VcSchemaMetaLibrary.VcSchema calldata _vcSchema
     ) external {
@@ -101,6 +143,11 @@ contract VcMetaStorage is Initializable {
         emit VcMetaRegistered(_vcSchema.id, vcSchemaJson);
     }
 
+    /**
+     * @notice Get VC schema by ID
+     * @param _vcSchemaId The VC schema ID
+     * @return The VC schema struct
+     */
     function getVcSchema(
         string calldata _vcSchemaId
     ) external view returns (VcSchemaMetaLibrary.VcSchema memory) {
@@ -119,12 +166,21 @@ contract VcMetaStorage is Initializable {
         return store._vcSchemas[_vcSchemaId];
     }
 
+    /**
+     * @dev Checks if a VC schema exists by ID
+     * @param _id The VC schema ID
+     * @return True if exists, false otherwise
+     */
     function _isExistSchema(string calldata _id) internal view returns (bool) {
         Storage storage store = _getStorage();
         // Check if the data exists
         return bytes(store._vcSchemas[_id].id).length > 0;
     }
 
+    /**
+     * @notice Delete a VC schema by ID
+     * @param _vcSchemaId The VC schema ID
+     */
     function deleteVcSchema(string calldata _vcSchemaId) external {
         Storage storage store = _getStorage();
         delete store._vcSchemas[_vcSchemaId];

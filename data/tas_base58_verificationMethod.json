@@ -1,0 +1,78 @@
+{
+    "context": [
+        "https://www.w3.org/ns/did/v1"
+    ],
+    "assertionMethod": [
+        "assert"
+    ],
+    "authentication": [
+        "auth"
+    ],
+    "capabilityInvocation": [
+        "invoke"
+    ],
+    "capabilityDelegation": [],
+    "services":[],
+    "controller": "did:omn:tas",
+    "created": "2025-05-20T08:51:10Z",
+    "deactivated": false,
+    "id": "did:omn:tas",
+    "keyAgreement": [
+        "keyagree"
+    ],
+    "proofs": [
+        {
+            "created": "2025-05-20T08:51:10Z",
+            "proofPurpose": "assertionMethod",
+            "proofValue": "z3poDxnFF3eJ4itwoLXa5t9Za9EJFfjm1JP7wjQKcpjbFLqEGURcSbNN9P3uYRhr1WidUUCVWTR3nmTeJgNPdoNuc5",
+            "type": "Secp256r1Signature2018",
+            "verificationMethod": "did:omn:tas?versionId=1#assert"
+        },
+        {
+            "created": "2025-05-20T08:51:10Z",
+            "proofPurpose": "authentication",
+            "proofValue": "z3rB6KDVTtc91s5zDWB5TqHYcMsQqQ2dJMBRsrUfxvXYqiEB3Kf1ukv2orKn9XkNbCLzWeh8br8HrGPRLv1rsqU9dT",
+            "type": "Secp256r1Signature2018",
+            "verificationMethod": "did:omn:tas?versionId=1#auth"
+        },
+        {
+            "created": "2025-05-20T08:51:10Z",
+            "proofPurpose": "capabilityInvocation",
+            "proofValue": "z3nJeoQxQmzKwavcHuoLaMzVKnKTY9U15ifdeYCnkF9VGgz8EX1UWVzmsrVNeg9KcJDxZxuNascphWXi5nRuXaw1Qv",
+            "type": "Secp256r1Signature2018",
+            "verificationMethod": "did:omn:tas?versionId=1#invoke"
+        }
+    ],
+    "updated": "2025-05-20T08:51:10Z",
+    "verificationMethod": [
+        {
+            "authType": 1,
+            "controller": "did:omn:tas",
+            "id": "assert",
+            "publicKeyMultibase": "zqMbdjVhoFCjUEgCgttqNazKaQQH9SRacjRDxnAwsRC2U",
+            "keyType": "1"
+        },
+        {
+            "authType": 1,
+            "controller": "did:omn:tas",
+            "id": "auth",
+            "publicKeyMultibase": "zsCaSUnUbWv3MhLytCtKZdupFU1APwJzu2EL3UgE9cNoy",
+            "keyType": "1"
+        },
+        {
+            "authType": 1,
+            "controller": "did:omn:tas",
+            "id": "keyagree",
+            "publicKeyMultibase": "z24P3vg4svFtCriHEQjBCREhNevU5k2nLnogR3p7bDFZMP",
+            "keyType": "1"
+        },
+        {
+            "authType": 1,
+            "controller": "did:omn:tas",
+            "id": "invoke",
+            "publicKeyMultibase": "zqYCWmkbkMgU9FD8TaujnsJmvhpsJx4bvFEp1sG1uyNpn",
+            "keyType": "1"
+        }
+    ],
+    "versionId": "1"
+}

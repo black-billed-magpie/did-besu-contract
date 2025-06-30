@@ -38,8 +38,8 @@ describe("DocumentStorage", function () {
             await documentStorage.registerDocument(document, owner.address);
             const storedDocument = await documentStorage.getDocument(document.id);
 
-            expect(storedDocument.id).to.equal(document.id);
-            expect(storedDocument.controller).to.equal(document.controller);
+            expect(storedDocument.diddoc.controller).to.equal(document.controller);
+            expect(storedDocument.status).to.equal(0);  // ACTIVE status
         });
 
         it("Should update a document", async function () {
@@ -52,7 +52,7 @@ describe("DocumentStorage", function () {
             await documentStorage.updateDocument(updatedDocument, document.id, "2");
 
             const storedDocument = await documentStorage.getDocument(document.id);
-            expect(storedDocument.versionId).to.equal("2");
+            expect(storedDocument.diddoc.versionId).to.equal("2");
         });
 
         it("Should update document status", async function () {

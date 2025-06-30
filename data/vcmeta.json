@@ -6,7 +6,7 @@
     },
     "subject": "did:example:subject456",
     "credentialSchema": {
-        "url": "schema:example:78901",
+        "id": "schema:example:78901",
         "credentialSchemaType": "JsonSchemaValidator2018"
     },
     "status": "ACTIVE",

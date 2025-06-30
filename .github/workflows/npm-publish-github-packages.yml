@@ -1,0 +1,102 @@
+# .github/workflows/ci-cd.yml
+
+name: Hardhat CI and Release
+
+# 워크플로우를 트리거할 이벤트를 정의합니다.
+on:
+  # 1. 브랜치로의 push 또는 pull request (테스트용)
+  push:
+    branches:
+      - main
+      - develop
+      - release/**
+    tags:
+      - 'V*' # v1.0, v1.2.3 등 'v'로 시작하는 모든 태그
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/**
+
+jobs:
+  # Job 1: 브랜치 변경 시 테스트 실행
+  # 브랜치에 대한 push 또는 pull_request일 때만 실행됩니다.
+  test:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
+    name: Run Hardhat Tests on Branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npx hardhat test
+
+  # Job 2: 태그 push 시 릴리스 생성, 아티팩트 업로드 및 패키지 발행
+  # 'V'로 시작하는 태그가 push 되었을 때만 실행됩니다.
+  release:
+    if: startsWith(github.ref, 'refs/tags/V')
+    name: Create Release and Publish Package
+    runs-on: ubuntu-latest
+    permissions:
+      # 릴리스 생성을 위해 contents: write
+      contents: write
+      # 패키지 발행을 위해 packages: write
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 컴파일 및 패키지 발행을 위해 Node.js 환경 설정
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          registry-url: 'https://npm.pkg.github.com'
+          # scope: '@OmniOneID' # package.json의 스코프에 맞게 설정
+
+      - name: Install dependencies
+        run: npm ci
+
+      # 릴리스 전에 최종 테스트를 한 번 더 실행하여 안정성을 보장합니다.
+      - name: Run final tests before release
+        run: npx hardhat test
+
+      # 릴리스에 포함할 컨트랙트 아티팩트를 생성합니다.
+      - name: Compile contracts
+        run: npx hardhat compile
+
+      # 생성된 artifacts 폴더를 zip 파일로 압축합니다.
+      - name: Package artifacts
+        run: zip -r artifacts.zip ./artifacts
+
+      # 릴리스를 생성하고 압축된 아티팩트 파일을 함께 업로드합니다.
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # push된 태그를 그대로 태그 이름으로 사용합니다.
+          tag_name: ${{ github.ref_name }}
+          # 릴리스 이름도 태그를 기반으로 생성합니다.
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            Release of version ${{ github.ref_name }}.
+            This release includes the compiled contract artifacts.
+          draft: false
+          prerelease: false
+          # 릴리스에 첨부할 파일 경로, 이름, 타입을 지정합니다.
+          asset_path: ./artifacts.zip
+          asset_name: artifacts.zip
+          asset_content_type: application/zip

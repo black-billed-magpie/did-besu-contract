@@ -87,5 +87,24 @@ describe("DocumentStorage", function () {
                 documentStorage.getDocument(document.id)
             ).to.be.revertedWith("Document does not exist");
         });
+
+        it("Should revert when getting a non-existent document", async function () {
+            const { documentStorage } = await loadFixture(deployDocumentStorage);
+            await expect(
+                documentStorage.getDocument("non-existent-id")
+            ).to.be.reverted;
+        });
+
+        it("Should emit events on register, update, and remove", async function () {
+            const { documentStorage, owner } = await loadFixture(deployDocumentStorage);
+            const document = getLocalJson("./data/document.json");
+            await expect(documentStorage.registerDocument(document, owner.address))
+                .to.emit(documentStorage, "DocumentRegistered");
+            const updatedDocument = { ...document, versionId: "2" };
+            await expect(documentStorage.updateDocument(updatedDocument, document.id, "2"))
+                .to.emit(documentStorage, "DocumentUpdated");
+            await expect(documentStorage.removeDocument(document.id))
+                .to.emit(documentStorage, "DocumentRemoved");
+        });
     });
 });

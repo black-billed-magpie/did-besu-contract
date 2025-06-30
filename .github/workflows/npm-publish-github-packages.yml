@@ -10,15 +10,13 @@ on:
       - main
       - develop
       - release/**
+    tags:
+      - 'V*' # v1.0, v1.2.3 등 'v'로 시작하는 모든 태그
   pull_request:
     branches:
       - main
       - develop
       - release/**
-  # 2. 'v'로 시작하는 태그를 push 했을 때 (릴리스 및 발행용)
-  push:
-    tags:
-      - 'V*' # v1.0, v1.2.3 등 'v'로 시작하는 모든 태그
 
 jobs:
   # Job 1: 브랜치 변경 시 테스트 실행

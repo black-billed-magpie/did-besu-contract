@@ -8,14 +8,14 @@ on:
   push:
     branches:
       - main
+      - develop
+      - release/**
   # 2. main 브랜치로의 pull request (테스트용)
   pull_request:
     branches:
       - main
-  # 3. 릴리스가 'created'되었을 때 (패키지 발행용)
-  release:
-    types: [created]
-
+      - develop
+      - release/**
 jobs:
   # Job 1: 테스트 실행
   # push 또는 pull_request 이벤트일 때만 이 잡(job)을 실행합니다.

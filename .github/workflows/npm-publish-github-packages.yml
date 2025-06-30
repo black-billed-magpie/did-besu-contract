@@ -102,10 +102,3 @@ jobs:
           asset_path: ./artifacts.zip
           asset_name: artifacts.zip
           asset_content_type: application/zip
-
-      # GitHub Packages에 패키지를 발행합니다.
-      # package.json의 version이 태그와 일치하는지 확인해야 합니다.
-      - name: Publish to GitHub Packages
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
